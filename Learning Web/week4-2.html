@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working with SQL Server in .NET</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Working with SQL Server in .NET</h1>
+
+    <section>
+        <h2>1. Connecting to SQL Server from an ASP.NET Core App</h2>
+        <p>To connect to SQL Server from an ASP.NET Core application, follow these steps:</p>
+
+        <h3>Step 1: Install Required NuGet Packages</h3>
+        <p>You need to install the <code>Microsoft.EntityFrameworkCore.SqlServer</code> package, which provides the SQL Server database provider for Entity Framework Core.</p>
+        <pre><code class="language-shell">dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+</code></pre>
+
+        <h3>Step 2: Configure the Database Connection</h3>
+        <p>In the <code>appsettings.json</code> file, add a connection string to your SQL Server database:</p>
+        <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=MyDatabase;User Id=myUsername;Password=myPassword;"
+  }
+}
+</code></pre>
+
+        <h3>Step 3: Create a DbContext Class</h3>
+        <p>Create a class that inherits from <code>DbContext</</code> to manage your database operations:</p>
+        <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Product> Products { get; set; }
+}
+</code></pre>
+
+        <h3>Step 4: Configure the DbContext in Startup</h3>
+        <p>In the <code>Startup.cs</code> file, configure the <code>DbContext</code> to use the SQL Server connection string:</p>
+        <pre><code class="language-csharp">public void ConfigureServices(IServiceCollection services)
+{
+    services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+}
+</code></pre>
+
+        <h3>Step 5: Create and Apply Migrations</h3>
+        <p>Use the Entity Framework Core tools to create and apply migrations:</p>
+        <pre><code class="language-shell">dotnet ef migrations add InitialCreate
+dotnet ef database update
+</code></pre>
+    </section>
+
+    <section>
+        <h2>2. Implementing CRUD Operations in SQL Server</h2>
+        <p>CRUD operations involve creating, reading, updating, and deleting records in the database. Here’s how to implement them in an ASP.NET Core application using Entity Framework Core:</p>
+
+        <h3>Creating (INSERT)</h3>
+        <p>To add a new record to the database, use the <code>Add</code> method and then call <code>SaveChanges</code>:</p>
+        <pre><code class="language-csharp">public async Task<IActionResult> CreateProduct(Product product)
+{
+    _context.Products.Add(product);
+    await _context.SaveChangesAsync();
+    return RedirectToAction(nameof(Index));
+}
+</code></pre>
+
+        <h3>Reading (SELECT)</h3>
+        <p>To retrieve data from the database, use the <code>Find</code> or <code>ToListAsync</code> methods:</p>
+        <pre><code class="language-csharp">public async Task<IActionResult> Index()
+{
+    var products = await _context.Products.ToListAsync();
+    return View(products);
+}
+
+public async Task<IActionResult> Details(int id)
+{
+    var product = await _context.Products.FindAsync(id);
+    if (product == null)
+    {
+        return NotFound();
+    }
+    return View(product);
+}
+</code></pre>
+
+        <h3>Updating (UPDATE)</h3>
+        <p>To update an existing record, first retrieve it, modify its properties, and then save changes:</p>
+        <pre><code class="language-csharp">public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Price")] Product product)
+{
+    if (id != product.ProductId)
+    {
+        return NotFound();
+    }
+
+    if (ModelState.IsValid)
+    {
+        try
+        {
+            _context.Update(product);
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ProductExists(product.ProductId))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        return RedirectToAction(nameof(Index));
+    }
+    return View(product);
+}
+
+private bool ProductExists(int id)
+{
+    return _context.Products.Any(e => e.ProductId == id);
+}
+</code></pre>
+
+        <h3>Deleting (DELETE)</h3>
+        <p>To delete a record, retrieve it, remove it from the context, and save changes:</p>
+        <pre><code class="language-csharp">public async Task<IActionResult> Delete(int id)
+{
+    var product = await _context.Products.FindAsync(id);
+    if (product == null)
+    {
+        return NotFound();
+    }
+
+    _context.Products.Remove(product);
+    await _context.SaveChangesAsync();
+    return RedirectToAction(nameof(Index));
+}
+</code></pre>
+    </section>
+
+    <footer>
+        <p>For more detailed information on Entity Framework Core and SQL Server integration, refer to the official <a href="https://docs.microsoft.com/en-us/ef/core/" target="_blank">Microsoft EF Core documentation</a> and <a href="https://docs.microsoft.com/en-us/sql/sql-server/" target="_blank">Microsoft SQL Server documentation</a>.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entity Framework Core Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Entity Framework Core Overview</h1>
+
+    <section>
+        <h2>1. ORM Concepts</h2>
+        <p>Object-Relational Mapping (ORM) is a technique that allows you to interact with a database using objects. EF Core is a modern ORM framework for .NET that simplifies database operations by abstracting the database interactions into object-oriented code.</p>
+
+        <h3>Core Concepts</h3>
+        <ul>
+            <li><strong>DbContext:</strong> Represents a session with the database, providing an API for querying and saving data. It is used to interact with the database.</li>
+            <li><strong>Entities:</strong> Classes that map to database tables. Each entity represents a row in the table.</li>
+            <li><strong>DbSet:</strong> Represents a collection of entities of a specific type that can be queried from the database.</li>
+            <li><strong>Migrations:</strong> Allows you to evolve your database schema over time as your model changes. Migrations are used to apply changes to the database schema.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>2. Code-First vs. Database-First Approaches</h2>
+        <p>Entity Framework Core supports two primary approaches for working with databases:</p>
+
+        <h3>Code-First Approach</h3>
+        <p>In the Code-First approach, you define your database schema using C# classes. EF Core then creates the database schema based on these classes.</p>
+        <ol>
+            <li><strong>Define Entities:</strong> Create classes representing your database tables.</li>
+            <pre><code class="language-csharp">// Models/Product.cs
+public class Product
+{
+    public int ProductId { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+}
+</code></pre>
+
+            <li><strong>Configure DbContext:</strong> Create a <code>DbContext</code> class to manage the entity classes.</li>
+            <pre><code class="language-csharp">// Data/ApplicationDbContext.cs
+using Microsoft.EntityFrameworkCore;
+
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Product> Products { get; set; }
+}
+</code></pre>
+
+            <li><strong>Perform Migrations:</strong> Use EF Core tools to create and apply migrations that reflect changes in your model to the database.</li>
+            <pre><code class="language-shell">dotnet ef migrations add InitialCreate
+dotnet ef database update
+</code></pre>
+        </ol>
+
+        <h3>Database-First Approach</h3>
+        <p>In the Database-First approach, you start with an existing database. EF Core generates C# classes based on the database schema.</p>
+        <ol>
+            <li><strong>Reverse Engineer the Database:</strong> Use EF Core tools to generate entity classes and DbContext from the existing database.</li>
+            <pre><code class="language-shell">dotnet ef dbcontext scaffold "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;" Microsoft.EntityFrameworkCore.SqlServer -o Models
+</code></pre>
+
+            <li><strong>Use Generated Classes:</strong> The scaffolded classes represent your database schema, and you can use them in your application.</li>
+            <pre><code class="language-csharp">// Models/Product.cs (Generated)
+public partial class Product
+{
+    public int ProductId { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+}
+</code></pre>
+        </ol>
+    </section>
+
+    <section>
+        <h2>3. Performing Database Operations with EF Core</h2>
+        <p>EF Core provides a rich set of methods to perform CRUD operations (Create, Read, Update, Delete) on your database.</p>
+
+        <h3>Creating and Configuring DbContext</h3>
+        <pre><code class="language-csharp">// Data/ApplicationDbContext.cs
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Product> Products { get; set; }
+}
+</code></pre>
+
+        <h3>Creating Records</h3>
+        <p>To create a new record, instantiate the entity class, add it to the DbSet, and save changes:</p>
+        <pre><code class="language-csharp">// Controllers/ProductsController.cs
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+
+[Route("api/[controller]")]
+[ApiController]
+public class ProductsController : ControllerBase
+{
+    private readonly ApplicationDbContext _context;
+
+    public ProductsController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateProduct(Product product)
+    {
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(CreateProduct), new { id = product.ProductId }, product);
+    }
+}
+</code></pre>
+
+        <h3>Reading Records</h3>
+        <p>To read records, use LINQ queries or EF Core methods:</p>
+        <pre><code class="language-csharp">// Controllers/ProductsController.cs
+[HttpGet]
+public async Task<IActionResult> GetProducts()
+{
+    var products = await _context.Products.ToListAsync();
+    return Ok(products);
+}
+</code></pre>
+
+        <h3>Updating Records</h3>
+        <p>To update a record, modify the entity and call <code>SaveChangesAsync</code>:</p>
+        <pre><code class="language-csharp">// Controllers/ProductsController.cs
+[HttpPut("{id}")]
+public async Task<IActionResult> UpdateProduct(int id, Product product)
+{
+    if (id != product.ProductId)
+    {
+        return BadRequest();
+    }
+
+    _context.Entry(product).State = EntityState.Modified;
+    await _context.SaveChangesAsync();
+    return NoContent();
+}
+</code></pre>
+
+        <h3>Deleting Records</h3>
+        <p>To delete a record, find it first, then remove it from the DbSet:</p>
+        <pre><code class="language-csharp">// Controllers/ProductsController.cs
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteProduct(int id)
+{
+    var product = await _context.Products.FindAsync(id);
+    if (product == null)
+    {
+        return NotFound();
+    }
+
+    _context.Products.Remove(product);
+    await _context.SaveChangesAsync();
+    return NoContent();
+}
+</code></pre>
+    </section>
+
+    <footer>
+        <p>For more detailed information on EF Core, visit the official <a href="https://docs.microsoft.com/en-us/ef/core/" target="_blank">Microsoft EF Core documentation</a>.</p>
+    </footer>
+</body>
+</html>

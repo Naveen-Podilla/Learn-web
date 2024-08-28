@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASP.NET Core Introduction: MVC Architecture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Introduction to ASP.NET Core: MVC Architecture</h1>
+
+    <section>
+        <h2>1. What is ASP.NET Core?</h2>
+        <p>ASP.NET Core is a cross-platform, high-performance framework for building modern, cloud-based, and internet-connected applications. It is a redesign of ASP.NET that focuses on performance, flexibility, and modern development practices.</p>
+    </section>
+
+    <section>
+        <h2>2. MVC Architecture</h2>
+        <p>The Model-View-Controller (MVC) architecture is a design pattern used to separate an application into three main components:</p>
+        <ul>
+            <li><strong>Model:</strong> Represents the data and business logic of the application. It is responsible for retrieving and storing data, and it may also include business rules and validation.</li>
+            <li><strong>View:</strong> Represents the presentation layer of the application. It is responsible for displaying the data from the model and sending user interactions to the controller.</li>
+            <li><strong>Controller:</strong> Acts as an intermediary between the Model and the View. It handles user input, interacts with the model, and selects the view to render the user interface.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. ASP.NET Core MVC Components</h2>
+        <p>In ASP.NET Core, the MVC components are implemented as follows:</p>
+
+        <h3>Model</h3>
+        <p>The model represents the data and business logic of the application. It typically includes classes that define the data structure and interact with the database.</p>
+        <pre><code class="language-csharp">// Example Model class
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+}
+</code></pre>
+
+        <h3>View</h3>
+        <p>The view is responsible for rendering the user interface. In ASP.NET Core MVC, views are typically implemented using Razor syntax in `.cshtml` files.</p>
+        <pre><code class="language-html">// Example View (Index.cshtml)
+@model IEnumerable<Product>
+
+<h2>Products</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var product in Model)
+    {
+        <tr>
+            <td>@product.Id</td>
+            <td>@product.Name</td>
+            <td>@product.Price</td>
+        </tr>
+    }
+    </tbody>
+</table>
+</code></pre>
+
+        <h3>Controller</h3>
+        <p>The controller handles user input and interacts with the model to perform operations. It then selects a view to render the response.</p>
+        <pre><code class="language-csharp">// Example Controller class
+public class ProductController : Controller
+{
+    private readonly ApplicationDbContext _context;
+
+    public ProductController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public IActionResult Index()
+    {
+        var products = _context.Products.ToList();
+        return View(products);
+    }
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>4. Example ASP.NET Core MVC Application</h2>
+        <p>Here is a simple example of an ASP.NET Core MVC application that displays a list of products.</p>
+
+        <h3>Project Structure</h3>
+        <ul>
+            <li><strong>Models:</strong> Contains the data models (e.g., <code>Product.cs</code>).</li>
+            <li><strong>Views:</strong> Contains the Razor view files (e.g., <code>Index.cshtml</code>).</li>
+            <li><strong>Controllers:</strong> Contains the controller classes (e.g., <code>ProductController.cs</code>).</li>
+            <li><strong>Data:</strong> Contains the application’s data context (e.g., <code>ApplicationDbContext.cs</code>).</li>
+        </ul>
+
+        <h3>Startup Configuration</h3>
+        <p>The `Startup.cs` file configures services and the app's request pipeline.</p>
+        <pre><code class="language-csharp">// Example Startup.cs configuration
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllersWithViews();
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseExceptionHandler("/Home/Error");
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Product}/{action=Index}/{id?}");
+        });
+    }
+}
+</code></pre>
+    </section>
+
+    <footer>
+        <p>For more information on ASP.NET Core MVC, visit the official <a href="https://docs.microsoft.com/en-us/aspnet/core/mvc/overview" target="_blank">Microsoft ASP.NET Core MVC documentation</a>.</p>
+    </footer>
+</body>
+</html>

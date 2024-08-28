@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angular Project: Integrating API Calls</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            margin-top: 20px;
+        }
+        .example pre {
+            background-color: #e9ecef;
+        }
+        .output {
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .code-example {
+            margin: 20px 0;
+        }
+        .code-example code {
+            background-color: #e9ecef;
+            display: block;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Building a More Complex Angular Application Integrating API Calls</h1>
+
+    <section>
+        <h2>1. Project Overview</h2>
+        <p>This example demonstrates how to build an Angular application that integrates with an API to fetch and display data. We will create a simple application that allows users to view, add, and delete items from a list.</p>
+    </section>
+
+    <section>
+        <h2>2. Setting Up the Angular Project</h2>
+        <p>First, create a new Angular project using Angular CLI:</p>
+        <pre><code>ng new angular-api-project</code></pre>
+
+        <p>Navigate to the project directory:</p>
+        <pre><code>cd angular-api-project</code></pre>
+    </section>
+
+    <section>
+        <h2>3. Creating the Service</h2>
+        <p>Create a service to handle API calls:</p>
+        <pre><code>ng generate service api</code></pre>
+
+        <h3>API Service Implementation</h3>
+        <pre><code class="language-typescript">import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ApiService {
+    private apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+
+    constructor(private http: HttpClient) { }
+
+    getPosts(): Observable<any> {
+        return this.http.get<any[]>(this.apiUrl);
+    }
+
+    addPost(post: any): Observable<any> {
+        return this.http.post(this.apiUrl, post);
+    }
+
+    deletePost(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/${id}`);
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li><code>HttpClient</code> is used to make HTTP requests.</li>
+                <li>Methods <code>getPosts</code>, <code>addPost</code>, and <code>deletePost</code> interact with the API endpoints.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>4. Implementing the Component</h2>
+        <p>Create a component to display and manage posts:</p>
+        <pre><code>ng generate component posts</code></pre>
+
+        <h3>Posts Component Implementation</h3>
+        <pre><code class="language-typescript">import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../api.service';
+
+@Component({
+    selector: 'app-posts',
+    templateUrl: './posts.component.html'
+})
+export class PostsComponent implements OnInit {
+    posts: any[] = [];
+    newPostTitle: string = '';
+
+    constructor(private apiService: ApiService) { }
+
+    ngOnInit(): void {
+        this.loadPosts();
+    }
+
+    loadPosts() {
+        this.apiService.getPosts().subscribe(data => {
+            this.posts = data;
+        });
+    }
+
+    addPost() {
+        if (this.newPostTitle) {
+            this.apiService.addPost({ title: this.newPostTitle }).subscribe(post => {
+                this.posts.push(post);
+                this.newPostTitle = '';
+            });
+        }
+    }
+
+    deletePost(id: number) {
+        this.apiService.deletePost(id).subscribe(() => {
+            this.posts = this.posts.filter(post => post.id !== id);
+        });
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;div&gt;
+    &lt;h2&gt;Posts&lt;/h2&gt;
+    &lt;input [(ngModel)]="newPostTitle" placeholder="New post title"&gt;
+    &lt;button (click)="addPost()"&gt;Add Post&lt;/button&gt;
+
+    &lt;ul&gt;
+        &lt;li *ngFor="let post of posts"&gt;
+            {{ post.title }}
+            &lt;button (click)="deletePost(post.id)"&gt;Delete&lt;/button&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>The <code>PostsComponent</code> uses <code>ApiService</code> to fetch, add, and delete posts.</li>
+                <li>The template allows adding a new post and deleting existing ones. The list updates dynamically based on the operations performed.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>5. App Module Configuration</h2>
+        <p>Ensure that <code>HttpClientModule</code> is imported into your application module:</p>
+        <pre><code class="language-typescript">import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { AppComponent } from './app.component';
+import { PostsComponent } from './posts/posts.component';
+import { ApiService } from './api.service';
+
+@NgModule({
+    declarations: [
+        AppComponent,
+        PostsComponent
+    ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule
+    ],
+    providers: [ApiService],
+    bootstrap: [AppComponent]
+})
+export class AppModule { }</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li><code>HttpClientModule</code> is required for making HTTP requests.</li>
+                <li><code>FormsModule</code> is needed for two-way data binding with <code>ngModel</code>.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>6. Example Output</h2>
+        <p>Here’s how the output would look based on the provided examples:</p>
+
+        <h3>Initial Display</h3>
+        <div class="output">
+            <pre>&lt;h2&gt;Posts&lt;/h2&gt;
+&lt;input placeholder="New post title"&gt;
+&lt;button&gt;Add Post&lt;/button&gt;
+
+&lt;ul&gt;
+    &lt;li&gt;Post 1&lt;button&gt;Delete&lt;/button&gt;&lt;/li&gt;
+    &lt;li&gt;Post 2&lt;button&gt;Delete&lt;/button&gt;&lt;/li&gt;
+&lt;/ul&gt;</pre>
+        </div>
+
+        <h3>After Adding a New Post</h3>
+        <div class="output">
+            <pre>&lt;h2&gt;Posts&lt;/h2&gt;
+&lt

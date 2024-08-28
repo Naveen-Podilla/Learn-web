@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Basics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            margin-top: 20px;
+        }
+        .example pre {
+            background-color: #e9ecef;
+        }
+        .output {
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003d7a;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Basics</h1>
+
+    <section>
+        <h2>1. Variables</h2>
+        <p>Variables in JavaScript can be declared using <code>var</code>, <code>let</code>, or <code>const</code>. The modern approach is to use <code>let</code> and <code>const</code> for better scoping and immutability.</p>
+
+        <h3>Variable Declaration Example</h3>
+        <pre><code class="language-javascript">let name = 'Alice';
+const age = 25;
+
+console.log(name); // Output: Alice
+console.log(age);  // Output: 25</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <pre><code class="language-text">Alice
+25</code></pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Functions</h2>
+        <p>Functions in JavaScript can be declared using the function keyword or as arrow functions. Functions are blocks of code designed to perform a task.</p>
+
+        <h3>Function Declaration Example</h3>
+        <pre><code class="language-javascript">function greet(name) {
+    return \`Hello, \${name}!\`;
+}
+
+console.log(greet('Alice')); // Output: Hello, Alice!</code></pre>
+
+        <h3>Arrow Function Example</h3>
+        <pre><code class="language-javascript">const add = (a, b) => a + b;
+
+console.log(add(5, 3)); // Output: 8</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <pre><code class="language-text">Hello, Alice!
+8</code></pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Events</h2>
+        <p>Events are actions that occur in the browser, such as clicks or key presses. JavaScript can handle these events using event listeners.</p>
+
+        <h3>Event Handling Example</h3>
+        <pre><code class="language-html">&lt;button id="myButton"&gt;Click Me!&lt;/button&gt;
+
+&lt;script&gt;
+    document.getElementById('myButton').addEventListener('click', () => {
+        alert('Button was clicked!');
+    });
+&lt;/script&gt;</code></pre>
+
+        <div class="example">
+            <button id="myButton">Click Me!</button>
+            <script>
+                document.getElementById('myButton').addEventListener('click', () => {
+                    alert('Button was clicked!');
+                });
+            </script>
+        </div>
+    </section>
+
+    <section>
+        <h2>4. DOM Manipulation</h2>
+        <p>The DOM (Document Object Model) represents the structure of a web page. JavaScript can be used to manipulate this structure dynamically.</p>
+
+        <h3>DOM Manipulation Example</h3>
+        <pre><code class="language-html">&lt;div id="myDiv"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+    const myDiv = document.getElementById('myDiv');
+    myDiv.innerHTML = '&lt;h2&gt;Hello, World!&lt;/h2&gt;';
+&lt;/script&gt;</code></pre>
+
+        <div class="output" id="myDiv"></div>
+        <script>
+            const myDiv = document.getElementById('myDiv');
+            myDiv.innerHTML = '<h2>Hello, World!</h2>';
+        </script>
+    </section>
+
+    <section>
+        <h2>5. Introduction to ES6 Features</h2>
+        <p>ES6 (ECMAScript 2015) introduced several new features to JavaScript, including arrow functions, classes, and modules.</p>
+
+        <h3>Arrow Functions</h3>
+        <pre><code class="language-javascript">const greet = name => \`Hello, \${name}!\`;
+
+console.log(greet('Bob')); // Output: Hello, Bob!</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <pre><code class="language-text">Hello, Bob!</code></pre>
+        </div>
+
+        <h3>Classes</h3>
+        <pre><code class="language-javascript">class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    greet() {
+        return \`Hello, my name is \${this.name} and I am \${this.age} years old.\`;
+    }
+}
+
+const person = new Person('Alice', 30);
+console.log(person.greet()); // Output: Hello, my name is Alice and I am 30 years old.</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <pre><code class="language-text">Hello, my name is Alice and I am 30 years old.</code></pre>
+        </div>
+
+        <h3>Modules</h3>
+        <p>Modules allow you to split your code into separate files and import/export functionalities as needed.</p>
+
+        <h4>module1.js</h4>
+        <pre><code class="language-javascript">export const greet = name => \`Hello, \${name}!\`;</code></pre>
+
+        <h4>main.js</h4>
+        <pre><code class="language-javascript">import { greet } from './module1.js';
+
+console.log(greet('Charlie')); // Output: Hello, Charlie!</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <pre><code class="language-text">Hello, Charlie!</code></pre>
+        </div>
+    </section>
+
+    <footer>
+        <p>For more detailed information, visit the official <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">MDN JavaScript documentation</a>.</p>
+    </footer>
+</body>
+</html>

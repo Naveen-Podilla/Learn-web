@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building a Simple ASP.NET Core Web API: CRUD Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Building a Simple ASP.NET Core Web API: CRUD Application</h1>
+
+    <section>
+        <h2>1. Introduction</h2>
+        <p>In this guide, we'll build a simple ASP.NET Core Web API that performs CRUD operations on a "Product" resource. This example will cover creating, reading, updating, and deleting records through an API.</p>
+    </section>
+
+    <section>
+        <h2>2. Project Setup</h2>
+        <p>Start by creating a new ASP.NET Core Web API project. You can do this using Visual Studio or the .NET CLI.</p>
+        <pre><code class="language-shell">dotnet new webapi -n ProductApi
+cd ProductApi
+</code></pre>
+        <p>This will create a new Web API project named "ProductApi".</p>
+    </section>
+
+    <section>
+        <h2>3. Define the Model</h2>
+        <p>The model represents the data structure. In our case, we'll create a <code>Product</code> class.</p>
+        <pre><code class="language-csharp">// Models/Product.cs
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>4. Create the Data Context</h2>
+        <p>The data context manages the database connection and provides access to the data.</p>
+        <pre><code class="language-csharp">// Data/ApplicationDbContext.cs
+using Microsoft.EntityFrameworkCore;
+
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Product> Products { get; set; }
+}
+</code></pre>
+        <p>Next, configure the data context in the <code>Startup.cs</code> file:</p>
+        <pre><code class="language-csharp">// Startup.cs
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseInMemoryDatabase("ProductDb"));
+        services.AddControllers();
+    }
+
+    // Other configurations
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>5. Create the Controller</h2>
+        <p>The controller handles incoming HTTP requests and interacts with the data context to perform CRUD operations.</p>
+        <pre><code class="language-csharp">// Controllers/ProductsController.cs
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+[Route("api/[controller]")]
+[ApiController]
+public class ProductsController : ControllerBase
+{
+    private readonly ApplicationDbContext _context;
+
+    public ProductsController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    // GET: api/products
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+    {
+        return await _context.Products.ToListAsync();
+    }
+
+    // GET: api/products/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Product>> GetProduct(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return product;
+    }
+
+    // POST: api/products
+    [HttpPost]
+    public async Task<ActionResult<Product>> PostProduct(Product product)
+    {
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+    }
+
+    // PUT: api/products/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutProduct(int id, Product product)
+    {
+        if (id != product.Id)
+        {
+            return BadRequest();
+        }
+
+        _context.Entry(product).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ProductExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+    // DELETE: api/products/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool ProductExists(int id)
+    {
+        return _context.Products.Any(e => e.Id == id);
+    }
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>6. Testing the API</h2>
+        <p>Run your application using <code>dotnet run</code> and use a tool like Postman or cURL to test the API endpoints:</p>
+        <ul>
+            <li><strong>GET /api/products</strong> - Retrieve all products.</li>
+            <li><strong>GET /api/products/{id}</strong> - Retrieve a specific product by ID.</li>
+            <li><strong>POST /api/products</strong> - Create a new product.</li>
+            <li><strong>PUT /api/products/{id}</strong> - Update an existing product.</li>
+            <li><strong>DELETE /api/products/{id}</strong> - Delete a product by ID.</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>For more information on building Web APIs with ASP.NET Core, visit the official <a href="https://docs.microsoft.com/en-us/aspnet/core/web-api/" target="_blank">Microsoft ASP.NET Core Web API documentation</a>.</p>
+    </footer>
+</body>
+</html>

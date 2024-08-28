@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Angular</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            margin-top: 20px;
+        }
+        .example pre {
+            background-color: #e9ecef;
+        }
+        .output {
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .code-example {
+            margin: 20px 0;
+        }
+        .code-example code {
+            background-color: #e9ecef;
+            display: block;
+            padding: 10px;
+        }
+        .example p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Introduction to Angular</h1>
+
+    <section>
+        <h2>1. Angular Components</h2>
+        <p>Angular components are the fundamental building blocks of an Angular application. Each component is a TypeScript class decorated with the <code>@Component</code> decorator. Components consist of a template, a class, and styles.</p>
+
+        <h3>Component Example</h3>
+        <pre><code class="language-typescript">@Component({
+    selector: 'app-hello-world',
+    template: '&lt;h1&gt;Hello, {{name}}!&lt;/h1&gt;',
+    styles: ['h1 { color: #0056b3; }']
+})
+export class HelloWorldComponent {
+    name: string = 'World';
+}</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;h1&gt;Hello, World!&lt;/h1&gt;</pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Angular Templates</h2>
+        <p>Templates define the view layout for Angular components. They use Angular's template syntax to bind data to HTML elements.</p>
+
+        <h3>Template Binding Example</h3>
+        <pre><code class="language-typescript">@Component({
+    selector: 'app-user-profile',
+    template: `
+        &lt;div&gt;
+            &lt;h2&gt;User Profile&lt;/h2&gt;
+            &lt;p&gt;Name: {{user.name}}&lt;/p&gt;
+            &lt;p&gt;Age: {{user.age}}&lt;/p&gt;
+        &lt;/div&gt;
+    `,
+    styles: ['div { font-family: Arial, sans-serif; }']
+})
+export class UserProfileComponent {
+    user = { name: 'Alice', age: 30 };
+}</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;div&gt;
+    &lt;h2&gt;User Profile&lt;/h2&gt;
+    &lt;p&gt;Name: Alice&lt;/p&gt;
+    &lt;p&gt;Age: 30&lt;/p&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Angular Modules</h2>
+        <p>Modules in Angular organize an application into cohesive blocks of functionality. Each Angular application has at least one module, the root module, which is usually named <code>AppModule</code>.</p>
+
+        <h3>Module Example</h3>
+        <pre><code class="language-typescript">@NgModule({
+    declarations: [HelloWorldComponent, UserProfileComponent],
+    imports: [BrowserModule],
+    providers: [],
+    bootstrap: [AppComponent]
+})
+export class AppModule { }</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <p>This module imports the <code>BrowserModule</code>, declares two components, and specifies the <code>AppComponent</code> as the bootstrap component.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>4. Data Binding</h2>
+        <p>Data binding in Angular allows for the synchronization between the model and the view. There are several types of data binding:</p>
+        <ul>
+            <li><strong>Interpolation:</strong> {{ value }}</li>
+            <li><strong>Property Binding:</strong> [property]="value"</li>
+            <li><strong>Event Binding:</strong> (event)="handler"</li>
+            <li><strong>Two-Way Binding:</strong> [(ngModel)]="value"</li>
+        </ul>
+
+        <h3>Data Binding Example</h3>
+        <pre><code class="language-typescript">@Component({
+    selector: 'app-data-binding',
+    template: `
+        &lt;input [(ngModel)]="name" /&gt;
+        &lt;p&gt;Hello, {{name}}!&lt;/p&gt;
+    `,
+    styles: ['input { margin-right: 10px; }']
+})
+export class DataBindingComponent {
+    name: string = 'World';
+}</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;input value="World"&gt;
+&lt;p&gt;Hello, World!&lt;/p&gt;</pre>
+            <p>Typing in the input field updates the text immediately due to two-way binding.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>5. Directives</h2>
+        <p>Directives are classes that add additional behavior to elements in your Angular applications. There are three types of directives:</p>
+        <ul>
+            <li><strong>Components:</strong> Directives with a template.</li>
+            <li><strong>Structural Directives:</strong> Change the DOM layout by adding or removing elements (e.g., *ngIf, *ngFor).</li>
+            <li><strong>Attribute Directives:</strong> Change the appearance or behavior of an element (e.g., [ngStyle], [ngClass]).</li>
+        </ul>
+
+        <h3>Structural Directive Example</h3>
+        <pre><code class="language-html">&lt;ul&gt;
+    &lt;li *ngFor="let item of items"&gt;{{item}}&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- In component class --&gt;
+export class ListComponent {
+    items: string[] = ['Item 1', 'Item 2', 'Item 3'];
+}</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;ul&gt;
+    &lt;li&gt;Item 1&lt;/li&gt;
+    &lt;li&gt;Item 2&lt;/li&gt;
+    &lt;li&gt;Item 3&lt;/li&gt;
+&lt;/ul&gt;</pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>6. Services</h2>
+        <p>Services are used to share data and logic across multiple components. They are typically used for data access, business logic, and state management.</p>
+
+        <h3>Service Example</h3>
+        <pre><code class="language-typescript">@Injectable({
+    providedIn: 'root'
+})
+export class UserService {
+    getUser() {
+        return { name: 'Alice', age: 30 };
+    }
+}
+
+@Component({
+    selector: 'app-user',
+    template: '&lt;p&gt;User: {{user.name}}, Age: {{user.age}}&lt;/p&gt;',
+})
+export class UserComponent {
+    user: any;
+
+    constructor(private userService: UserService) {
+        this.user = this.userService.getUser();
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;p&gt;User: Alice, Age: 30&lt;/p&gt;</pre>
+        </div>
+    </section>
+
+    <footer>
+        <p>For more detailed information, visit the official <a href="https://angular.io/docs" target="_blank">Angular Documentation</a>.</p>
+    </footer>
+</body>
+</html>

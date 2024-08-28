@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 & CSS3 Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-around;
+            background: #f4f4f4;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .flex-item {
+            background: #0056b3;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+            width: 30%;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        .grid-item {
+            background: #0056b3;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .flex-item {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML5 & CSS3 Guide</h1>
+
+    <div class="container">
+        <section>
+            <h2>1. HTML5 Structure</h2>
+            <p>HTML5 is the latest version of the HTML standard. It introduces new elements and attributes to enhance web page structure and functionality.</p>
+
+            <h3>Basic HTML5 Document Structure</h3>
+            <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+        &lt;title&gt;Document&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;header&gt;
+            &lt;h1&gt;Welcome to HTML5&lt;/h1&gt;
+        &lt;/header&gt;
+        &lt;nav&gt;
+            &lt;ul&gt;
+                &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href="#"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/nav&gt;
+        &lt;main&gt;
+            &lt;section&gt;
+                &lt;h2&gt;Section Heading&lt;/h2&gt;
+                &lt;p&gt;This is a paragraph of text.&lt;/p&gt;
+            &lt;/section&gt;
+        &lt;/main&gt;
+        &lt;footer&gt;
+            &lt;p&gt;&copy; 2024 Your Company&lt;/p&gt;
+        &lt;/footer&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+            <p>Output:</p>
+            <pre><code class="language-html">&lt;header&gt;
+    &lt;h1&gt;Welcome to HTML5&lt;/h1&gt;
+&lt;/header&gt;
+&lt;nav&gt;
+    &lt;ul&gt;
+        &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href="#"&gt;About&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href="#"&gt;Contact&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/nav&gt;
+&lt;main&gt;
+    &lt;section&gt;
+        &lt;h2&gt;Section Heading&lt;/h2&gt;
+        &lt;p&gt;This is a paragraph of text.&lt;/p&gt;
+    &lt;/section&gt;
+&lt;/main&gt;
+&lt;footer&gt;
+    &lt;p&gt;&copy; 2024 Your Company&lt;/p&gt;
+&lt;/footer&gt;
+</code></pre>
+        </section>
+
+        <section>
+            <h2>2. CSS3 Properties</h2>
+            <p>CSS3 introduces new properties and features to enhance web design. Some of the most common properties include:</p>
+            
+            <h3>Basic CSS3 Syntax</h3>
+            <pre><code class="language-css">/* CSS Comment */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #0056b3;
+}
+</code></pre>
+            <p>Output:</p>
+            <pre><code class="language-html">&lt;body&gt;
+    &lt;h1&gt;Styled Heading&lt;/h1&gt;
+&lt;/body&gt;</code></pre>
+
+            <h3>CSS3 Box Model</h3>
+            <p>The CSS3 Box Model consists of the following components:</p>
+            <ul>
+                <li><strong>Content</strong>: The actual content of the box.</li>
+                <li><strong>Padding</strong>: Space between the content and the border.</li>
+                <li><strong>Border</strong>: The border surrounding the padding (if any).</li>
+                <li><strong>Margin</strong>: Space outside the border.</li>
+            </ul>
+            <pre><code class="language-css">.box {
+    width: 200px;
+    padding: 20px;
+    border: 2px solid #0056b3;
+    margin: 10px;
+}
+</code></pre>
+            <p>Output:</p>
+            <pre><code class="language-html">&lt;div class="box"&gt;
+    Content inside the box
+&lt;/div&gt;</code></pre>
+        </section>
+
+        <section>
+            <h2>3. Responsive Design with Flexbox</h2>
+            <p>Flexbox is a one-dimensional layout method for aligning items within a container. It allows items to grow, shrink, and align easily.</p>
+
+            <h3>Basic Flexbox Example</h3>
+            <pre><code class="language-html">&lt;div class="flex-container"&gt;
+    &lt;div class="flex-item"&gt;Item 1&lt;/div&gt;
+    &lt;div class="flex-item"&gt;Item 2&lt;/div&gt;
+    &lt;div class="flex-item"&gt;Item 3&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+            <pre><code class="language-css">.flex-container {
+    display: flex;
+    justify-content: space-around;
+    background: #f4f4f4;
+    padding: 20px;
+}
+
+.flex-item {
+    background: #0056b3;
+    color: white;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    width: 30%;
+}
+</code></pre>
+            <p>Output:</p>
+            <div class="flex-container">
+                <div class="flex-item">Item 1</div>
+                <div class="flex-item">Item 2</div>
+                <div class="flex-item">Item 3</div>
+            </div>
+            <p>Responsive behavior:</p>
+            <ul>
+                <li>On screens narrower than 768px, items stack vertically.</li>
+                <li>On screens narrower than 480px, items take full width.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Responsive Design with Grid</h2>
+            <p>CSS Grid is a two-dimensional layout system that allows you to create complex layouts with ease.</p>
+
+            <h3>Basic Grid Example</h3>
+            <pre><code class="language-html">&lt;div class="grid-container"&gt;
+    &lt;div class="grid-item"&gt;Item 1&lt;/div&gt;
+    &lt;div class="grid-item"&gt;Item 2&lt;/div&gt;
+    &lt;div class="grid-item"&gt;Item 3&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+            <pre><code class="language-css">.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    background: #f4f4f4;
+    padding: 20px;
+}
+
+.grid-item {
+    background: #0056b3;
+    color: white;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+}
+</code></pre>
+            <p>Output:</p>
+            <div class="grid-container">
+                <div class="grid-item">Item 1</div>
+                <div class="grid-item">Item 2</div>
+                <div class="grid-item">Item 3</div>
+            </div>
+            <p>Responsive behavior:</p>
+            <ul>
+                <li>On screens narrower than 768px, the grid changes to 2 columns.</li>
+                <li>On screens narrower than 480px, the grid changes to a single column.</li>
+            </ul>
+        </section>
+    </div>
+
+    <footer>
+        <p>For more detailed information, visit the official <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank">MDN HTML documentation</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank">MDN CSS documentation</a>.</p>
+    </footer>
+</body>
+</html>

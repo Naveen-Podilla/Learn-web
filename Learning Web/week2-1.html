@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced C# Concepts: LINQ, Delegates, Events, and Lambdas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Advanced C# Concepts</h1>
+
+    <section>
+        <h2>1. LINQ (Language Integrated Query)</h2>
+        <p>LINQ (Language Integrated Query) is a feature in C# that allows you to perform queries on data sources using a SQL-like syntax integrated into C#. It simplifies data manipulation and querying within the language.</p>
+
+        <h3>LINQ Query Syntax</h3>
+        <p>LINQ query syntax resembles SQL queries. It is used to query collections such as arrays, lists, or databases.</p>
+        <pre><code class="language-csharp">// Using LINQ query syntax to filter even numbers
+List<int> numbers = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+// Query to get even numbers
+var evenNumbers = from number in numbers
+                  where number % 2 == 0
+                  select number;
+
+Console.WriteLine("Even numbers:");
+foreach (var num in evenNumbers)
+{
+    Console.WriteLine(num);
+}
+</code></pre>
+
+        <h3>LINQ Method Syntax</h3>
+        <p>LINQ method syntax uses method calls to achieve the same results as query syntax. It is more flexible and can be used for complex queries.</p>
+        <pre><code class="language-csharp">// Using LINQ method syntax to filter even numbers
+var evenNumbersMethod = numbers.Where(n => n % 2 == 0);
+
+Console.WriteLine("Even numbers (Method Syntax):");
+foreach (var num in evenNumbersMethod)
+{
+    Console.WriteLine(num);
+}
+</code></pre>
+
+        <p>LINQ also supports a wide range of operations such as <code>Select</code>, <code>OrderBy</code>, <code>GroupBy</code>, and <code>Join</code> to perform complex queries and data transformations.</p>
+    </section>
+
+    <section>
+        <h2>2. Delegates</h2>
+        <p>A delegate is a type that represents references to methods with a specific parameter list and return type. Delegates are useful for designing extensible and flexible applications, as they allow methods to be passed as arguments and called indirectly.</p>
+
+        <h3>Defining and Using Delegates</h3>
+        <pre><code class="language-csharp">
+// Define a delegate
+delegate void PrintMessage(string message);
+
+class Program
+{
+    static void Main()
+    {
+        // Instantiate the delegate
+        PrintMessage print = DisplayMessage;
+        
+        // Call the delegate
+        print("Hello, Delegates!");
+    }
+
+    // Method that matches the delegate signature
+    static void DisplayMessage(string message)
+    {
+        Console.WriteLine(message);
+    }
+}
+</code></pre>
+
+        <p>Delegates can be used to implement callback methods and event handling. They are also fundamental to the event handling model in .NET.</p>
+    </section>
+
+    <section>
+        <h2>3. Events</h2>
+        <p>Events are a special type of delegate used for notification purposes. They are particularly useful in GUI programming to notify subscribers about changes or actions, such as button clicks or form submissions.</p>
+
+        <h3>Defining and Using Events</h3>
+        <pre><code class="language-csharp">
+// Define an event
+class Alarm
+{
+    // Event declaration
+    public event Action OnAlarmRang;
+
+    // Method that triggers the event
+    public void Ring()
+    {
+        Console.WriteLine("Alarm is ringing!");
+        OnAlarmRang?.Invoke();
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Alarm alarm = new Alarm();
+        
+        // Subscribe to the event
+        alarm.OnAlarmRang += () => Console.WriteLine("Alarm event triggered!");
+
+        alarm.Ring();
+    }
+}
+</code></pre>
+
+        <p>Events provide a way to broadcast notifications to multiple subscribers. The <code>+=</code> operator is used to subscribe to an event, and the <code>-=</code> operator is used to unsubscribe.</p>
+    </section>
+
+    <section>
+        <h2>4. Lambdas</h2>
+        <p>Lambda expressions are a concise way to write anonymous methods using a special syntax. They are particularly useful when working with LINQ queries or when you need to pass a short piece of code as an argument.</p>
+
+        <h3>Basic Lambda Expression</h3>
+        <pre><code class="language-csharp">
+// Lambda expression example
+Func<int, int, int> add = (x, y) => x + y;
+
+int result = add(5, 3);
+Console.WriteLine("Sum: " + result);
+</code></pre>
+
+        <h3>Lambda Expressions in LINQ</h3>
+        <p>Lambda expressions are often used in LINQ queries for filtering, ordering, and projecting data.</p>
+        <pre><code class="language-csharp">
+// Lambda expression in LINQ
+List<string> names = new List<string> { "Alice", "Bob", "Charlie", "David" };
+
+// Using lambda expression to filter names
+var shortNames = names.Where(name => name.Length <= 4);
+
+Console.WriteLine("Names with 4 or fewer characters:");
+foreach (var name in shortNames)
+{
+    Console.WriteLine(name);
+}
+</code></pre>
+
+        <p>Lambda expressions allow you to write more readable and maintainable code, especially when dealing with operations that require small snippets of code.</p>
+    </section>
+
+    <footer>
+        <p>For more detailed information and examples, visit the official <a href="https://docs.microsoft.com/en-us/dotnet/csharp/" target="_blank">Microsoft C# documentation</a>.</p>
+    </footer>
+</body>
+</html>

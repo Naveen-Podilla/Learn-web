@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angular Routing and Forms</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            margin-top: 20px;
+        }
+        .example pre {
+            background-color: #e9ecef;
+        }
+        .output {
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .code-example {
+            margin: 20px 0;
+        }
+        .code-example code {
+            background-color: #e9ecef;
+            display: block;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Angular Routing and Forms</h1>
+
+    <section>
+        <h2>1. Implementing Routing</h2>
+        <p>Routing allows navigation between different views or components in an Angular application. To implement routing, you need to configure routes in the Angular module and use <code>&lt;router-outlet&gt;</code> to display routed components.</p>
+
+        <h3>Routing Configuration Example</h3>
+        <pre><code class="language-typescript">import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { HomeComponent } from './home/home.component';
+import { AboutComponent } from './about/about.component';
+
+const routes: Routes = [
+    { path: 'home', component: HomeComponent },
+    { path: 'about', component: AboutComponent },
+    { path: '', redirectTo: '/home', pathMatch: 'full' }
+];
+
+@NgModule({
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
+})
+export class AppRoutingModule { }</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li><code>RouterModule.forRoot(routes)</code> configures the app's root routes.</li>
+                <li><code>path: ''</code> redirects empty paths to the home component.</li>
+            </ul>
+        </div>
+
+        <h3>Using Router Outlet</h3>
+        <pre><code class="language-html">&lt;router-outlet&gt;&lt;/router-outlet&gt;</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <p>The <code>&lt;router-outlet&gt;</code> directive is used in the main application template to display routed components based on the active route.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Template-Driven Forms</h2>
+        <p>Template-driven forms are easy to use and ideal for simple forms. They are defined directly in the HTML and use Angular's directives for validation and form control.</p>
+
+        <h3>Template-Driven Form Example</h3>
+        <pre><code class="language-html">&lt;form #userForm="ngForm" (ngSubmit)="onSubmit(userForm)"&gt;
+    &lt;div&gt;
+        &lt;label for="name"&gt;Name:&lt;/label&gt;
+        &lt;input type="text" id="name" name="name" ngModel required /&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label for="email"&gt;Email:&lt;/label&gt;
+        &lt;input type="email" id="email" name="email" ngModel required /&gt;
+    &lt;/div&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+        <pre><code class="language-typescript">import { Component } from '@angular/core';
+
+@Component({
+    selector: 'app-template-form',
+    templateUrl: './template-form.component.html'
+})
+export class TemplateFormComponent {
+    onSubmit(form: any) {
+        console.log('Form Submitted!', form.value);
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p>Upon form submission, the form data is logged to the console.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Reactive Forms</h2>
+        <p>Reactive forms provide more control and flexibility. They are defined in the component class and use FormGroup and FormControl to manage form state and validation.</p>
+
+        <h3>Reactive Form Example</h3>
+        <pre><code class="language-typescript">import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+@Component({
+    selector: 'app-reactive-form',
+    templateUrl: './reactive-form.component.html'
+})
+export class ReactiveFormComponent {
+    form: FormGroup;
+
+    constructor(private fb: FormBuilder) {
+        this.form = this.fb.group({
+            name: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]]
+        });
+    }
+
+    onSubmit() {
+        console.log('Form Submitted!', this.form.value);
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;form [formGroup]="form" (ngSubmit)="onSubmit()"&gt;
+    &lt;div&gt;
+        &lt;label for="name"&gt;Name:&lt;/label&gt;
+        &lt;input type="text" id="name" formControlName="name" /&gt;
+        &lt;div *ngIf="form.controls.name.invalid && form.controls.name.touched"&gt;
+            Name is required.
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label for="email"&gt;Email:&lt;/label&gt;
+        &lt;input type="email" id="email" formControlName="email" /&gt;
+        &lt;div *ngIf="form.controls.email.invalid && form.controls.email.touched"&gt;
+            A valid email is required.
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button type="submit" [disabled]="form.invalid"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p>Upon form submission, the form data is logged to the console. Form validation errors are displayed if the user tries to submit with invalid data.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>For more detailed information, visit the official <a href="https://angular.io/guide/forms-overview" target="_blank">Angular Forms Documentation</a>.</p>
+    </footer>
+</body>
+</html>

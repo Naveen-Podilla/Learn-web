@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angular Services and Dependency Injection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            margin-top: 20px;
+        }
+        .example pre {
+            background-color: #e9ecef;
+        }
+        .output {
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .code-example {
+            margin: 20px 0;
+        }
+        .code-example code {
+            background-color: #e9ecef;
+            display: block;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Angular Services and Dependency Injection</h1>
+
+    <section>
+        <h2>1. Introduction to Angular Services</h2>
+        <p>Angular services are classes that provide a way to share data and functionality across different components. Services are typically used for data access, business logic, or state management.</p>
+
+        <h3>Creating a Service</h3>
+        <p>To create a service, use Angular CLI or manually create a service class and decorate it with the <code>@Injectable</code> decorator. The <code>@Injectable</code> decorator makes the service available for dependency injection.</p>
+
+        <h3>Example Service</h3>
+        <pre><code class="language-typescript">import { Injectable } from '@angular/core';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class UserService {
+    private users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' }
+    ];
+
+    getUsers() {
+        return this.users;
+    }
+
+    getUserById(id: number) {
+        return this.users.find(user => user.id === id);
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li><code>@Injectable({ providedIn: 'root' })</code> makes the service available throughout the application.</li>
+                <li>The <code>UserService</code> class provides methods to get users and find a user by ID.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Using Services in Components</h2>
+        <p>To use a service in a component, inject the service into the component's constructor. Angular will handle the dependency injection and provide the service instance to the component.</p>
+
+        <h3>Example Component Using Service</h3>
+        <pre><code class="language-typescript">import { Component, OnInit } from '@angular/core';
+import { UserService } from './user.service';
+
+@Component({
+    selector: 'app-user-list',
+    templateUrl: './user-list.component.html'
+})
+export class UserListComponent implements OnInit {
+    users: any[];
+
+    constructor(private userService: UserService) { }
+
+    ngOnInit() {
+        this.users = this.userService.getUsers();
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;ul&gt;
+    &lt;li *ngFor="let user of users"&gt;{{user.name}}&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>The <code>UserListComponent</code> injects <code>UserService</code> and retrieves the list of users using the service.</li>
+                <li>The template displays the list of users using Angular's <code>*ngFor</code> directive.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Dependency Injection in Angular</h2>
+        <p>Dependency Injection (DI) is a design pattern used to implement IoC (Inversion of Control). Angular's DI framework allows you to inject services and other dependencies into components or other services.</p>
+
+        <h3>How Dependency Injection Works</h3>
+        <p>Angular creates and manages the service instances and injects them into components or other services that request them. This helps in achieving modularity and reusability of code.</p>
+
+        <h3>Example of DI in Action</h3>
+        <pre><code class="language-typescript">import { Component } from '@angular/core';
+import { UserService } from './user.service';
+
+@Component({
+    selector: 'app-user-detail',
+    templateUrl: './user-detail.component.html'
+})
+export class UserDetailComponent {
+    user: any;
+
+    constructor(private userService: UserService) { }
+
+    ngOnInit() {
+        this.user = this.userService.getUserById(1);
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;div&gt;
+    &lt;h2&gt;User Detail&lt;/h2&gt;
+    &lt;p&gt;Name: {{user.name}}&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>The <code>UserDetailComponent</code> uses <code>UserService</code> to fetch user details by ID.</li>
+                <li>The user details are then displayed in the component's template.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>4. Example Output</h2>
+        <p>Here’s how the output would look based on the provided examples:</p>
+
+        <h3>Output for User List</h3>
+        <div class="output">
+            <pre>&lt;ul&gt;
+    &lt;li&gt;Alice&lt;/li&gt;
+    &lt;li&gt;Bob&lt;/li&gt;
+&lt;/ul&gt;</pre>
+        </div>
+
+        <h3>Output for User Detail</h3>
+        <div class="output">
+            <pre>&lt;div&gt;
+    &lt;h2&gt;User Detail&lt;/h2&gt;
+    &lt;p&gt;Name: Alice&lt;/p&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </section>
+
+    <footer>
+        <p>For more detailed information, visit the official <a href="https://angular.io/guide/architecture" target="_blank">Angular Documentation</a>.</p>
+    </footer>
+</body>
+</html>

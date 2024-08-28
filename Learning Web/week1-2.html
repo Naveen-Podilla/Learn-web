@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C# Basics: Variables, Data Types, Control Structures, and Collections</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>C# Basics</h1>
+
+    <section>
+        <h2>1. Variables</h2>
+        <p>In C#, a variable is used to store data that can be referenced and manipulated in a program. Variables must be declared with a specific data type.</p>
+        <pre><code class="language-csharp">// Variable declaration and initialization
+int age = 25;
+string name = "John Doe";
+double height = 5.9;
+
+// Output to the console
+Console.WriteLine("Name: " + name);
+Console.WriteLine("Age: " + age);
+Console.WriteLine("Height: " + height);
+</code></pre>
+    </section>
+
+    <section>
+        <h2>2. Data Types</h2>
+        <p>C# supports various data types that can be broadly classified into value types and reference types.</p>
+        <h3>Value Types</h3>
+        <ul>
+            <li><strong>int:</strong> Represents integer values.</li>
+            <li><strong>double:</strong> Represents floating-point numbers.</li>
+            <li><strong>char:</strong> Represents a single character.</li>
+            <li><strong>bool:</strong> Represents a boolean value (true or false).</li>
+        </ul>
+        <h3>Reference Types</h3>
+        <ul>
+            <li><strong>string:</strong> Represents a sequence of characters.</li>
+            <li><strong>object:</strong> The base type for all other types.</li>
+        </ul>
+        <pre><code class="language-csharp">// Example of data types
+int number = 42;
+double price = 19.99;
+char initial = 'A';
+bool isCSharpFun = true;
+string greeting = "Hello, C#!";
+
+// Output to the console
+Console.WriteLine("Number: " + number);
+Console.WriteLine("Price: " + price);
+Console.WriteLine("Initial: " + initial);
+Console.WriteLine("Is C# Fun?: " + isCSharpFun);
+Console.WriteLine("Greeting: " + greeting);
+</code></pre>
+    </section>
+
+    <section>
+        <h2>3. Control Structures</h2>
+        <p>Control structures allow you to control the flow of execution in your program.</p>
+        <h3>Conditional Statements</h3>
+        <pre><code class="language-csharp">// Example of if-else statement
+int number = 10;
+
+if (number > 0)
+{
+    Console.WriteLine("Number is positive.");
+}
+else if (number < 0)
+{
+    Console.WriteLine("Number is negative.");
+}
+else
+{
+    Console.WriteLine("Number is zero.");
+}
+</code></pre>
+
+        <h3>Loops</h3>
+        <p>Loops are used to execute a block of code multiple times.</p>
+        <pre><code class="language-csharp">// Example of a for loop
+for (int i = 0; i < 5; i++)
+{
+    Console.WriteLine("Value of i: " + i);
+}
+
+// Example of a while loop
+int j = 0;
+while (j < 5)
+{
+    Console.WriteLine("Value of j: " + j);
+    j++;
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>4. Collections</h2>
+        <p>Collections in C# are used to store groups of related objects. The most commonly used collections are arrays, lists, and dictionaries.</p>
+        <h3>Arrays</h3>
+        <pre><code class="language-csharp">// Example of an array
+int[] numbers = { 1, 2, 3, 4, 5 };
+
+foreach (int number in numbers)
+{
+    Console.WriteLine("Number: " + number);
+}
+</code></pre>
+
+        <h3>Lists</h3>
+        <p>Lists are dynamic arrays that can grow and shrink in size.</p>
+        <pre><code class="language-csharp">// Example of a List
+List<string> names = new List<string> { "Alice", "Bob", "Charlie" };
+
+names.Add("Diana");
+names.Remove("Bob");
+
+foreach (string name in names)
+{
+    Console.WriteLine("Name: " + name);
+}
+</code></pre>
+
+        <h3>Dictionaries</h3>
+        <p>Dictionaries store key-value pairs.</p>
+        <pre><code class="language-csharp">// Example of a Dictionary
+Dictionary<string, int> ageDictionary = new Dictionary<string, int>
+{
+    { "Alice", 30 },
+    { "Bob", 25 },
+    { "Charlie", 35 }
+};
+
+foreach (KeyValuePair<string, int> entry in ageDictionary)
+{
+    Console.WriteLine("Name: " + entry.Key + ", Age: " + entry.Value);
+}
+</code></pre>
+    </section>
+
+    <footer>
+        <p>For more information on C# programming, visit the official <a href="https://docs.microsoft.com/en-us/dotnet/csharp/" target="_blank">Microsoft C# documentation</a>.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced ASP.NET Core Concepts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Advanced ASP.NET Core Concepts</h1>
+
+    <section>
+        <h2>1. Authentication and Authorization (Identity)</h2>
+        <p>ASP.NET Core Identity provides a membership system that allows you to manage user accounts and perform authentication and authorization.</p>
+
+        <h3>Setting Up Identity</h3>
+        <p>To set up ASP.NET Core Identity in your project:</p>
+        <ol>
+            <li>Install the necessary NuGet packages:</li>
+            <pre><code class="language-shell">dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.AspNetCore.Identity.UI
+</code></pre>
+
+            <li>Update your <code>Startup.cs</code> to configure Identity services:</li>
+            <pre><code class="language-csharp">// Startup.cs
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+        services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+        services.AddControllersWithViews();
+    }
+
+    // Other configurations
+}
+</code></pre>
+
+            <li>Modify the <code>ApplicationDbContext</code> class to inherit from <code>IdentityDbContext</code>:</li>
+            <pre><code class="language-csharp">// Data/ApplicationDbContext.cs
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
+public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+}
+</code></pre>
+
+            <li>Ensure the Identity UI is included. You may use scaffolding to generate the Identity UI pages if needed.</li>
+        </ol>
+
+        <h3>Adding Authentication and Authorization</h3>
+        <p>Use the <code>[Authorize]</code> attribute to protect actions or controllers. For example:</p>
+        <pre><code class="language-csharp">// Controllers/ProductsController.cs
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+[Authorize]
+[Route("api/[controller]")]
+[ApiController]
+public class ProductsController : ControllerBase
+{
+    // Actions
+}
+</code></pre>
+
+        <p>For role-based access, you can use:</p>
+        <pre><code class="language-csharp">// Controllers/AdminController.cs
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+[Authorize(Roles = "Admin")]
+[Route("api/[controller]")]
+[ApiController]
+public class AdminController : ControllerBase
+{
+    // Admin actions
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>2. Middleware</h2>
+        <p>Middleware are components that handle requests and responses in ASP.NET Core. They are executed in a pipeline.</p>
+
+        <h3>Creating Custom Middleware</h3>
+        <p>Define a class with an <code>Invoke</code> or <code>InvokeAsync</code> method to create custom middleware:</p>
+        <pre><code class="language-csharp">// Middleware/RequestLoggingMiddleware.cs
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+
+public class RequestLoggingMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public RequestLoggingMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        // Log request information
+        Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
+        await _next(context);
+    }
+}
+</code></pre>
+
+        <p>Register the middleware in <code>Startup.cs</code>:</p>
+        <pre><code class="language-csharp">// Startup.cs
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseMiddleware<RequestLoggingMiddleware>();
+    // Other middlewares
+}
+</code></pre>
+
+        <p>Middleware are executed in the order they are added, so ensure you place them in the correct sequence.</p>
+    </section>
+
+    <section>
+        <h2>3. Dependency Injection</h2>
+        <p>Dependency Injection (DI) is used to manage service lifetimes and dependencies in ASP.NET Core. It helps with inversion of control and promotes loose coupling.</p>
+
+        <h3>Configuring Services</h3>
+        <p>Register services in <code>ConfigureServices</code> in <code>Startup.cs</code>:</p>
+        <pre><code class="language-csharp">// Startup.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddScoped<IMyService, MyService>();
+    services.AddTransient<IOtherService, OtherService>();
+    services.AddSingleton<ISingletonService, SingletonService>();
+    services.AddControllers();
+}
+</code></pre>
+
+        <p>Here, <code>IMyService</code> is registered with a scoped lifetime, meaning a new instance is created for each request. <code>IOtherService</code> is transient, creating a new instance every time it is requested, and <code>ISingletonService</code> is a singleton, creating one instance for the entire application.</p>
+
+        <h3>Injecting Services</h3>
+        <p>Inject services into controllers or other services via constructor injection:</p>
+        <pre><code class="language-csharp">// Controllers/MyController.cs
+public class MyController : ControllerBase
+{
+    private readonly IMyService _myService;
+
+    public MyController(IMyService myService)
+    {
+        _myService = myService;
+    }
+
+    // Actions
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>4. Configuration</h2>
+        <p>ASP.NET Core supports flexible configuration from various sources, such as JSON files, environment variables, and command-line arguments.</p>
+
+        <h3>Using Configuration Files</h3>
+        <p>The <code>appsettings.json</code> file is used to store configuration settings:</p>
+        <pre><code class="language-json">{
+  "AppSettings": {
+    "SiteTitle": "My Application",
+    "Version": "1.0.0"
+  }
+}
+</code></pre>
+
+        <p>Access configuration values using the <code>IConfiguration</code> interface:</p>
+        <pre><code class="language-csharp">// Controllers/ConfigController.cs
+using Microsoft.Extensions.Configuration;
+
+public class ConfigController : ControllerBase
+{
+    private readonly IConfiguration _configuration;
+
+    public ConfigController(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    [HttpGet("config")]
+    public IActionResult GetConfig()
+    {
+        var siteTitle = _configuration["AppSettings:SiteTitle"];
+        return Ok(new { SiteTitle = siteTitle });
+    }
+}
+</code></pre>
+
+        <h3>Using Environment Variables</h3>
+        <p>Environment variables can be used to override settings in different environments:</p>
+        <pre><code class="language-shell"># Set an environment variable
+export AppSettings__SiteTitle="Production Site Title"
+</code></pre>
+
+        <p>ASP.NET Core's configuration system integrates environment variables seamlessly, so you can use them to configure your application without changing code.</p>
+    </section>
+
+    <footer>
+        <p>For more in-depth information on these topics, visit the official <a href="https://docs.microsoft.com/en-us/aspnet/core/" target="_blank">Microsoft ASP.NET Core documentation</a>.</p>
+    </footer>
+</body>
+</html>

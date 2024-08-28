@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Server Basics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>SQL Server Basics</h1>
+
+    <section>
+        <h2>1. SQL Syntax</h2>
+        <p>SQL (Structured Query Language) is used to interact with relational databases. Here are some basic SQL commands:</p>
+
+        <h3>Basic SQL Commands</h3>
+        <ul>
+            <li><strong>SELECT</strong> - Retrieves data from a database.</li>
+            <pre><code class="language-sql">-- Retrieve all columns from the Products table
+SELECT * FROM Products;
+</code></pre>
+
+            <li><strong>INSERT INTO</strong> - Adds new rows to a table.</li>
+            <pre><code class="language-sql">-- Insert a new product into the Products table
+INSERT INTO Products (ProductId, Name, Price)
+VALUES (1, 'Laptop', 999.99);
+</code></pre>
+
+            <li><strong>UPDATE</strong> - Modifies existing rows in a table.</li>
+            <pre><code class="language-sql">-- Update the price of a product
+UPDATE Products
+SET Price = 899.99
+WHERE ProductId = 1;
+</code></pre>
+
+            <li><strong>DELETE</strong> - Removes rows from a table.</li>
+            <pre><code class="language-sql">-- Delete a product from the Products table
+DELETE FROM Products
+WHERE ProductId = 1;
+</code></pre>
+        </ul>
+    </section>
+
+    <section>
+        <h2>2. Joins</h2>
+        <p>Joins are used to combine rows from two or more tables based on a related column. Here are the most common types of joins:</p>
+
+        <h3>INNER JOIN</h3>
+        <p>Returns records that have matching values in both tables.</p>
+        <pre><code class="language-sql">-- Get orders with product details
+SELECT Orders.OrderId, Products.Name, Orders.OrderDate
+FROM Orders
+INNER JOIN Products ON Orders.ProductId = Products.ProductId;
+</code></pre>
+
+        <h3>LEFT JOIN (or LEFT OUTER JOIN)</h3>
+        <p>Returns all records from the left table and matched records from the right table. Non-matching rows from the right table will be NULL.</p>
+        <pre><code class="language-sql">-- Get all products and any orders associated with them
+SELECT Products.Name, Orders.OrderId
+FROM Products
+LEFT JOIN Orders ON Products.ProductId = Orders.ProductId;
+</code></pre>
+
+        <h3>RIGHT JOIN (or RIGHT OUTER JOIN)</h3>
+        <p>Returns all records from the right table and matched records from the left table. Non-matching rows from the left table will be NULL.</p>
+        <pre><code class="language-sql">-- Get all orders and any products associated with them
+SELECT Orders.OrderId, Products.Name
+FROM Orders
+RIGHT JOIN Products ON Orders.ProductId = Products.ProductId;
+</code></pre>
+
+        <h3>FULL JOIN (or FULL OUTER JOIN)</h3>
+        <p>Returns all records when there is a match in either left or right table records. Non-matching rows from both tables will be NULL.</p>
+        <pre><code class="language-sql">-- Get all products and orders, showing records from both tables
+SELECT Products.Name, Orders.OrderId
+FROM Products
+FULL JOIN Orders ON Products.ProductId = Orders.ProductId;
+</code></pre>
+    </section>
+
+    <section>
+        <h2>3. Stored Procedures</h2>
+        <p>Stored procedures are precompiled collections of SQL statements that perform a specific task. They can be executed by an application or directly by a user.</p>
+
+        <h3>Creating a Stored Procedure</h3>
+        <pre><code class="language-sql">-- Create a stored procedure to get product details by ID
+CREATE PROCEDURE GetProductById
+    @ProductId INT
+AS
+BEGIN
+    SELECT * FROM Products
+    WHERE ProductId = @ProductId;
+END;
+</code></pre>
+
+        <h3>Executing a Stored Procedure</h3>
+        <pre><code class="language-sql">-- Execute the stored procedure with a specific ProductId
+EXEC GetProductById @ProductId = 1;
+</code></pre>
+
+        <h3>Modifying a Stored Procedure</h3>
+        <pre><code class="language-sql">-- Modify the stored procedure to include product price
+ALTER PROCEDURE GetProductById
+    @ProductId INT
+AS
+BEGIN
+    SELECT ProductId, Name, Price FROM Products
+    WHERE ProductId = @ProductId;
+END;
+</code></pre>
+
+        <h3>Dropping a Stored Procedure</h3>
+        <pre><code class="language-sql">-- Drop the stored procedure
+DROP PROCEDURE GetProductById;
+</code></pre>
+    </section>
+
+    <section>
+        <h2>4. Database Design and Normalization</h2>
+        <p>Database design involves creating a structure for storing data efficiently. Normalization is the process of organizing data to reduce redundancy and improve data integrity.</p>
+
+        <h3>Database Design</h3>
+        <p>Database design typically involves creating tables with primary keys and relationships between tables. A well-designed database schema helps in maintaining data integrity and efficiency.</p>
+        <pre><code class="language-sql">-- Example table creation for Products
+CREATE TABLE Products (
+    ProductId INT PRIMARY KEY,
+    Name NVARCHAR(100),
+    Price DECIMAL(10, 2)
+);
+
+-- Example table creation for Orders
+CREATE TABLE Orders (
+    OrderId INT PRIMARY KEY,
+    OrderDate DATE,
+    ProductId INT,
+    FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
+);
+</code></pre>
+
+        <h3>Normalization</h3>
+        <p>Normalization involves organizing tables and columns to reduce redundancy and dependency. It typically involves several normal forms (1NF, 2NF, 3NF, etc.).</p>
+
+        <h4>First Normal Form (1NF)</h4>
+        <p>A table is in 1NF if it only contains atomic (indivisible) values and each column contains only one type of data.</p>
+        <pre><code class="language-sql">-- Example of a table in 1NF
+CREATE TABLE Customers (
+    CustomerId INT PRIMARY KEY,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Email NVARCHAR(100)
+);
+</code></pre>
+
+        <h4>Second Normal Form (2NF)</h4>
+        <p>A table is in 2NF if it is in 1NF and all non-key attributes are fully functionally dependent on the primary key.</p>
+        <pre><code class="language-sql">-- Example of a table in 2NF
+-- Assuming OrderDetails table with composite key (OrderId, ProductId)
+CREATE TABLE OrderDetails (
+    OrderId INT,
+    ProductId INT,
+    Quantity INT,
+    PRIMARY KEY (OrderId, ProductId),
+    FOREIGN KEY (OrderId) REFERENCES Orders(OrderId),
+    FOREIGN KEY (ProductId) REFERENCES Products(ProductId)
+);
+</code></pre>
+
+        <h4>Third Normal Form (3NF)</h4>
+        <p>A table is in 3NF if it is in 2NF and all the columns are dependent only on the primary key, eliminating transitive dependencies.</p>
+        <pre><code class="language-sql">-- Example of a table in 3NF
+-- Assuming Employees table where Department is dependent on DepartmentId
+CREATE TABLE Departments (
+    DepartmentId INT PRIMARY KEY,
+    DepartmentName NVARCHAR(100)
+);
+
+CREATE TABLE Employees (
+    EmployeeId INT PRIMARY KEY,
+    Name NVARCHAR(100),
+    DepartmentId INT,
+    FOREIGN KEY (DepartmentId) REFERENCES Departments(DepartmentId)
+);
+</code></pre>
+    </section>
+
+    <footer>
+        <p>For more detailed information on SQL Server and database design, refer to the official <a href="https://docs.microsoft.com/en-us/sql/sql-server/" target="_blank">Microsoft SQL Server documentation</a>.</p>
+    </footer>
+</body>
+</html>

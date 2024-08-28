@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build a Simple Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header {
+            background: #0056b3;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .main-content {
+            padding: 20px;
+            background: white;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        footer {
+            background: #0056b3;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        button {
+            background: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #003d7a;
+        }
+        .output {
+            background: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Simple Website</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section id="home" class="main-content">
+            <h2>Welcome to My Website</h2>
+            <p>This is a simple static website built with HTML, CSS, and JavaScript. Below you will find examples of each component.</p>
+        </section>
+
+        <section id="about" class="main-content">
+            <h2>About Us</h2>
+            <p>This section provides information about the website or the owner. You can add any relevant content here.</p>
+        </section>
+
+        <section id="contact" class="main-content">
+            <h2>Contact Us</h2>
+            <p>To contact us, click the button below and see the action:</p>
+            <button id="contactButton">Click Me!</button>
+            <div class="output" id="outputArea"></div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 My Simple Website</p>
+    </footer>
+
+    <script>
+        // JavaScript to handle button click event
+        document.getElementById('contactButton').addEventListener('click', function() {
+            document.getElementById('outputArea').innerHTML = '<p>Thank you for clicking the button!</p>';
+        });
+    </script>
+</body>
+</html>

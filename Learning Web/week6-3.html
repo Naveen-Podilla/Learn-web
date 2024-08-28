@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build a Simple Angular App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            margin-top: 20px;
+        }
+        .example pre {
+            background-color: #e9ecef;
+        }
+        .output {
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .code-example {
+            margin: 20px 0;
+        }
+        .code-example code {
+            background-color: #e9ecef;
+            display: block;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Build a Simple Angular App</h1>
+    <p>In this guide, we'll create a basic CRUD (Create, Read, Update, Delete) application using Angular. The app will manage a list of items, allowing you to add, view, edit, and delete items.</p>
+
+    <section>
+        <h2>1. Setting Up the Angular Application</h2>
+        <p>First, create a new Angular project using Angular CLI:</p>
+        <pre><code>ng new simple-crud-app</code></pre>
+        <p>Navigate into the project directory:</p>
+        <pre><code>cd simple-crud-app</code></pre>
+        <p>Install Angular Material for UI components (optional):</p>
+        <pre><code>ng add @angular/material</code></pre>
+    </section>
+
+    <section>
+        <h2>2. Creating the CRUD Components</h2>
+        <p>We'll need components for listing items, adding items, and editing items. Generate these components using Angular CLI:</p>
+        <pre><code>ng generate component item-list
+ng generate component item-add
+ng generate component item-edit</code></pre>
+
+        <h3>Component Structure</h3>
+        <ul>
+            <li><code>item-list</code>: Displays a list of items.</li>
+            <li><code>item-add</code>: Provides a form to add a new item.</li>
+            <li><code>item-edit</code>: Provides a form to edit an existing item.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. Implementing the CRUD Operations</h2>
+        <p>We'll create a service to manage item data and perform CRUD operations.</p>
+
+        <h3>Item Service</h3>
+        <pre><code class="language-typescript">import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ItemService {
+    private itemsSubject = new BehaviorSubject<any[]>([]);
+    items$ = this.itemsSubject.asObservable();
+
+    private items: any[] = [];
+
+    constructor() {
+        this.loadInitialData();
+    }
+
+    loadInitialData() {
+        this.items = [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }];
+        this.itemsSubject.next(this.items);
+    }
+
+    addItem(item: any) {
+        item.id = this.items.length + 1;
+        this.items.push(item);
+        this.itemsSubject.next(this.items);
+    }
+
+    getItemById(id: number) {
+        return this.items.find(item => item.id === id);
+    }
+
+    updateItem(updatedItem: any) {
+        const index = this.items.findIndex(item => item.id === updatedItem.id);
+        if (index > -1) {
+            this.items[index] = updatedItem;
+            this.itemsSubject.next(this.items);
+        }
+    }
+
+    deleteItem(id: number) {
+        this.items = this.items.filter(item => item.id !== id);
+        this.itemsSubject.next(this.items);
+    }
+    }
+}</code></pre>
+
+        <h3>Item List Component</h3>
+        <pre><code class="language-typescript">import { Component, OnInit } from '@angular/core';
+import { ItemService } from '../item.service';
+import { Router } from '@angular/router';
+
+@Component({
+    selector: 'app-item-list',
+    templateUrl: './item-list.component.html'
+})
+export class ItemListComponent implements OnInit {
+    items: any[] = [];
+
+    constructor(private itemService: ItemService, private router: Router) { }
+
+    ngOnInit() {
+        this.itemService.items$.subscribe(data => this.items = data);
+    }
+
+    editItem(id: number) {
+        this.router.navigate(['/edit', id]);
+    }
+
+    deleteItem(id: number) {
+        this.itemService.deleteItem(id);
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;div&gt;
+    &lt;h2&gt;Item List&lt;/h2&gt;
+    &lt;ul&gt;
+        &lt;li *ngFor="let item of items"&gt;
+            {{item.name}}
+            &lt;button (click)="editItem(item.id)"&gt;Edit&lt;/button&gt;
+            &lt;button (click)="deleteItem(item.id)"&gt;Delete&lt;/button&gt;
+        &lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;a routerLink="/add"&gt;Add New Item&lt;/a&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;div&gt;
+    &lt;h2&gt;Item List&lt;/h2&gt;
+    &lt;ul&gt;
+        &lt;li&gt;Item 1 &lt;button&gt;Edit&lt;/button&gt; &lt;button&gt;Delete&lt;/button&gt;&lt;/li&gt;
+        &lt;li&gt;Item 2 &lt;button&gt;Edit&lt;/button&gt; &lt;button&gt;Delete&lt;/button&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;a&gt;Add New Item&lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <h3>Item Add Component</h3>
+        <pre><code class="language-typescript">import { Component } from '@angular/core';
+import { ItemService } from '../item.service';
+import { Router } from '@angular/router';
+
+@Component({
+    selector: 'app-item-add',
+    templateUrl: './item-add.component.html'
+})
+export class ItemAddComponent {
+    item = { name: '' };
+
+    constructor(private itemService: ItemService, private router: Router) { }
+
+    addItem() {
+        this.itemService.addItem(this.item);
+        this.router.navigate(['/']);
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;form (ngSubmit)="addItem()" #itemForm="ngForm"&gt;
+    &lt;div&gt;
+        &lt;label for="name"&gt;Name:&lt;/label&gt;
+        &lt;input type="text" id="name" [(ngModel)]="item.name" name="name" required /&gt;
+    &lt;/div&gt;
+    &lt;button type="submit"&gt;Add Item&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;Name:&lt;/label&gt;
+        &lt;input value=""&gt;
+    &lt;/div&gt;
+    &lt;button&gt;Add Item&lt;/button&gt;
+&lt;/form&gt;</pre>
+        </div>
+
+        <h3>Item Edit Component</h3>
+        <pre><code class="language-typescript">import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ItemService } from '../item.service';
+
+@Component({
+    selector: 'app-item-edit',
+    templateUrl: './item-edit.component.html'
+})
+export class ItemEditComponent implements OnInit {
+    item: any;
+
+    constructor(
+        private route: ActivatedRoute,
+        private itemService: ItemService,
+        private router: Router
+    ) { }
+
+    ngOnInit() {
+        const id = +this.route.snapshot.paramMap.get('id');
+        this.item = this.itemService.getItemById(id);
+    }
+
+    updateItem() {
+        this.itemService.updateItem(this.item);
+        this.router.navigate(['/']);
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;form (ngSubmit)="updateItem()" #itemForm="ngForm"&gt;
+    &lt;div&gt;
+        &lt;label for="name"&gt;Name:&lt;/label&gt;
+        &lt;input type="text" id="name" [(ngModel)]="item.name" name="name" required /&gt;
+    &lt;/div&gt;
+    &lt;button type="submit"&gt;Update Item&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+        <div class="output">
+            <p>Output:</p>
+            <p><strong>Rendered HTML:</strong></p>
+            <pre>&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;Name:&lt;/label&gt;
+        &lt;input value="Item X"&gt;
+    &lt;/div&gt;
+    &lt;button&gt;Update Item&lt;/button&gt;
+&lt;/form&gt;</pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>4. Configuring Routing</h2>
+        <p>To navigate between the components, configure the routes in the application module.</p>
+
+        <pre><code class="language-typescript">import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Routes } from '@angular/router';
+
+import { AppComponent } from './app.component';
+import { ItemListComponent } from './item-list/item-list.component';
+import { ItemAddComponent } from './item-add/item-add.component';
+import { ItemEditComponent } from './item-edit/item-edit.component';
+import { ItemService } from './item.service';
+
+const routes: Routes = [
+    { path: '', component: ItemListComponent },
+    { path: 'add', component: ItemAddComponent },
+    { path: 'edit/:id', component: ItemEditComponent }
+];
+
+@NgModule({
+    declarations: [
+        AppComponent,
+        ItemListComponent,
+        ItemAddComponent,
+        ItemEditComponent
+    ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        RouterModule.forRoot(routes)
+    ],
+    providers: [ItemService],
+    bootstrap: [AppComponent]
+})
+export class AppModule { }</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <p>The <code>RouterModule.forRoot(routes)</code> configures the app's routes, allowing navigation between the list, add, and edit components.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>5. Running the Application</h2>
+        <p>To see your application in action, start the Angular development server:</p>
+        <pre><code>ng serve</code></pre>
+        <p>Open your browser and navigate to <code>http://localhost:4200</code>. You should see the item list and be able to add, edit, and delete items.</p>
+    </section>
+
+    <footer>
+        <p>For more detailed information, visit the official <a href="https://angular.io/guide/architecture" target="_blank">Angular Documentation</a>.</p>
+    </footer>
+</body>
+</html>

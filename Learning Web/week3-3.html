@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Work: Building a Complex Web Application with EF Core</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Project Work: Building a Complex Web Application with EF Core</h1>
+
+    <section>
+        <h2>1. Project Setup</h2>
+        <p>Start by creating a new ASP.NET Core project and adding EF Core to it.</p>
+
+        <h3>Creating a New Project</h3>
+        <pre><code class="language-shell">dotnet new webapi -n ComplexWebApp
+cd ComplexWebApp
+</code></pre>
+
+        <h3>Adding EF Core Packages</h3>
+        <p>Install the necessary NuGet packages for EF Core and SQL Server:</p>
+        <pre><code class="language-shell">dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Design
+</code></pre>
+    </section>
+
+    <section>
+        <h2>2. Defining Models and DbContext</h2>
+        <p>Create your entity classes and configure your <code>DbContext</code> to manage the database operations.</p>
+
+        <h3>Creating Models</h3>
+        <p>Define your entity classes that represent tables in the database. For example, consider a simple application for managing orders and products:</p>
+        <pre><code class="language-csharp">// Models/Product.cs
+public class Product
+{
+    public int ProductId { get; set; }
+    public string Name { get; set; }
+    public decimal Price { get; set; }
+}
+
+// Models/Order.cs
+public class Order
+{
+    public int OrderId { get; set; }
+    public DateTime OrderDate { get; set; }
+    public int ProductId { get; set; }
+    public Product Product { get; set; }
+}
+</code></pre>
+
+        <h3>Configuring DbContext</h3>
+        <p>Create a <code>DbContext</code> class to handle database operations:</p>
+        <pre><code class="language-csharp">// Data/ApplicationDbContext.cs
+using Microsoft.EntityFrameworkCore;
+
+public class ApplicationDbContext : DbContext
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Order> Orders { get; set; }
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>3. Configuring Services and Database Connection</h2>
+        <p>Set up the database connection and register your <code>DbContext</code> with dependency injection.</p>
+
+        <h3>Configuring the Database Connection</h3>
+        <p>In your <code>appsettings.json</code>, add the connection string for your database:</p>
+        <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=ComplexWebAppDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+  }
+}
+</code></pre>
+
+        <h3>Registering DbContext in Startup</h3>
+        <p>Update the <code>Startup.cs</code> file to include the DbContext:</p>
+        <pre><code class="language-csharp">// Startup.cs
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+        services.AddControllers();
+    }
+
+    // Other methods...
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>4. Implementing CRUD Operations</h2>
+        <p>Create a controller to handle HTTP requests and perform CRUD operations on your data.</p>
+
+        <h3>Creating the Products Controller</h3>
+        <p>Implement the CRUD operations for the <code>Product</code> entity:</p>
+        <pre><code class="language-csharp">// Controllers/ProductsController.cs
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+[Route("api/[controller]")]
+[ApiController]
+public class ProductsController : ControllerBase
+{
+    private readonly ApplicationDbContext _context;
+
+    public ProductsController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+    {
+        return await _context.Products.ToListAsync();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Product>> GetProduct(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+        return product;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Product>> PostProduct(Product product)
+    {
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutProduct(int id, Product product)
+    {
+        if (id != product.ProductId)
+        {
+            return BadRequest();
+        }
+
+        _context.Entry(product).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+}
+</code></pre>
+
+        <h3>Creating the Orders Controller</h3>
+        <p>Similarly, implement CRUD operations for the <code>Order</code> entity:</p>
+        <pre><code class="language-csharp">// Controllers/OrdersController.cs
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+[Route("api/[controller]")]
+[ApiController]
+public class OrdersController : ControllerBase
+{
+    private readonly ApplicationDbContext _context;
+
+    public OrdersController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+    {
+        return await _context.Orders.Include(o => o.Product).ToListAsync();
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Order>> GetOrder(int id)
+    {
+        var order = await _context.Orders.Include(o => o.Product).FirstOrDefaultAsync(o => o.OrderId == id);
+        if (order == null)
+        {
+            return NotFound();
+        }
+        return order;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Order>> PostOrder(Order order)
+    {
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetOrder), new { id = order.OrderId }, order);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutOrder(int id, Order order)
+    {
+        if (id != order.OrderId)
+        {
+            return BadRequest();
+        }
+
+        _context.Entry(order).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteOrder(int id)
+    {
+        var order = await _context.Orders.FindAsync(id);
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        _context.Orders.Remove(order);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+}
+</code></pre>
+    </section>
+
+    <section>
+        <h2>5. Testing and Running the Application</h2>
+        <p>Test the API endpoints using tools like Postman or CURL to ensure that all CRUD operations are functioning correctly.</p>
+
+        <h3>Running the Application</h3>
+        <p>Run the application using:</p>
+        <pre><code class="language-shell">dotnet run
+</code></pre>
+
+        <p>Navigate to <code>http://localhost:5000/api/products</code> or <code>http://localhost:5000/api/orders</code> to test the API endpoints.</p>
+    </section>
+
+    <footer>
+        <p>For more detailed information on EF Core, visit the official <a href="https://docs.microsoft.com/en-us/ef/core/" target="_blank">Microsoft EF Core documentation</a>.</p>
+    </footer>
+</body>
+</html>

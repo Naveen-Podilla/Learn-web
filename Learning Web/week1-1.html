@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to .NET Framework</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        section {
+            margin-bottom: 20px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        ul {
+            margin: 10px 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Introduction to .NET Framework</h1>
+
+    <section>
+        <h2>Overview</h2>
+        <p>The .NET Framework is a software development framework developed by Microsoft. It provides a large library and support for various programming languages, enabling developers to build and run applications on Windows. The .NET Framework is composed of several key components that work together to deliver a robust development environment.</p>
+    </section>
+
+    <section>
+        <h2>Common Language Runtime (CLR)</h2>
+        <p>The CLR is the execution engine for .NET applications. It provides several important services:</p>
+        <ul>
+            <li><strong>Memory Management:</strong> The CLR handles memory allocation and garbage collection, which helps in automatic memory management and reduces memory leaks.</li>
+            <li><strong>Exception Handling:</strong> It provides a structured way to handle errors and exceptions that occur during execution.</li>
+            <li><strong>Security:</strong> The CLR enforces security policies to ensure that code runs safely, including code access security and validation of code.</li>
+            <li><strong>Just-In-Time (JIT) Compilation:</strong> It converts Intermediate Language (IL) code into native machine code just before execution, optimizing performance.</li>
+            <li><strong>Thread Management:</strong> The CLR manages threads and synchronization, enabling multithreading and parallelism in applications.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Base Class Library (BCL)</h2>
+        <p>The BCL is a set of classes, interfaces, and value types that provide access to system functionality and help with common programming tasks. The BCL includes:</p>
+        <ul>
+            <li><strong>System Collections:</strong> Provides classes for collections like lists, dictionaries, and queues.</li>
+            <li><strong>System IO:</strong> Contains classes for file and stream handling, including reading and writing data.</li>
+            <li><strong>System Networking:</strong> Includes classes for working with network protocols and communication.</li>
+            <li><strong>System Data:</strong> Provides classes for data access and manipulation, including database connectivity.</li>
+            <li><strong>System Threads:</strong> Provides classes for managing threads and synchronization.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Architecture of .NET Framework</h2>
+        <p>The architecture of the .NET Framework can be broken down into several key layers:</p>
+        <ul>
+            <li><strong>Application Layer:</strong> Includes the applications built using .NET, such as Windows Forms, WPF, ASP.NET, and console applications.</li>
+            <li><strong>Framework Class Library (FCL):</strong> A subset of the BCL, it includes additional libraries for application development, such as Windows Presentation Foundation (WPF) and ASP.NET.</li>
+            <li><strong>Common Language Runtime (CLR):</strong> The execution environment that manages the execution of .NET applications.</li>
+            <li><strong>Common Intermediate Language (CIL):</strong> The intermediate language code that .NET applications are compiled into before being executed by the CLR.</li>
+            <li><strong>Metadata:</strong> Provides information about the data and structure of .NET assemblies, which the CLR uses to manage execution.</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>For more information, visit the official <a href="https://docs.microsoft.com/en-us/dotnet/framework" target="_blank">Microsoft .NET documentation</a>.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication & Authorization in Angular with JWT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .example {
+            margin-top: 20px;
+        }
+        .example pre {
+            background-color: #e9ecef;
+        }
+        .output {
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .code-example {
+            margin: 20px 0;
+        }
+        .code-example code {
+            background-color: #e9ecef;
+            display: block;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Authentication & Authorization in Angular with JWT</h1>
+
+    <section>
+        <h2>1. Overview</h2>
+        <p>This guide explains how to implement authentication in an Angular application using JSON Web Tokens (JWT). JWTs are used to securely transmit information between parties as a JSON object. This implementation involves setting up authentication on the backend, creating a login form in Angular, and managing JWTs for secure API access.</p>
+    </section>
+
+    <section>
+        <h2>2. Backend Setup</h2>
+        <p>Assume you already have an ASP.NET Core backend. Add JWT authentication to it:</p>
+
+        <h3>Configuring JWT Authentication in ASP.NET Core</h3>
+        <pre><code class="language-csharp">using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        var key = Encoding.ASCII.GetBytes("your_secret_key_here"); // Use a secure key in production
+
+        services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(x =>
+        {
+            x.RequireHttpsMetadata = false;
+            x.SaveToken = true;
+            x.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+        });
+
+        services.AddControllers();
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseRouting();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>JWT authentication is configured to validate tokens using a secret key.</li>
+                <li><code>TokenValidationParameters</code> is used to set validation criteria for the JWT.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Creating the Login Endpoint</h2>
+        <p>Create an endpoint to issue JWTs upon successful login:</p>
+        <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly IConfiguration _configuration;
+
+    public AuthController(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] LoginModel model)
+    {
+        // Authenticate the user (this is just a placeholder)
+        if (model.Username == "user" && model.Password == "password")
+        {
+            var token = GenerateJwtToken(model.Username);
+            return Ok(new { Token = token });
+        }
+
+        return Unauthorized();
+    }
+
+    private string GenerateJwtToken(string username)
+    {
+        var key = Encoding.ASCII.GetBytes("your_secret_key_here");
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Name, username)
+            }),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>The <code>Login</code> method authenticates the user and generates a JWT if the credentials are valid.</li>
+                <li><code>GenerateJwtToken</code> creates the JWT with a specified expiration time and signing credentials.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>4. Angular Frontend Setup</h2>
+        <p>Create a service to handle authentication and interact with the backend:</p>
+        <pre><code>ng generate service auth</code></pre>
+
+        <h3>AuthService Implementation</h3>
+        <pre><code class="language-typescript">import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class AuthService {
+    private apiUrl = 'https://localhost:5001/api/auth';
+    private currentUserSubject = new BehaviorSubject&lt;any&gt;(null);
+    public currentUser = this.currentUserSubject.asObservable();
+
+    constructor(private http: HttpClient) { }
+
+    login(username: string, password: string): Observable&lt;any&gt; {
+        return this.http.post&lt;any&gt;(\`\${this.apiUrl}/login\`, { username, password })
+            .pipe(tap(response =&gt; {
+                if (response && response.token) {
+                    localStorage.setItem('currentUser', JSON.stringify(response));
+                    this.currentUserSubject.next(response);
+                }
+            }));
+    }
+
+    logout() {
+        localStorage.removeItem('currentUser');
+        this.currentUserSubject.next(null);
+    }
+
+    get token() {
+        const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        return user.token;
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>The <code>login</code> method posts credentials to the backend and stores the JWT on success.</li>
+                <li><code>logout</code> clears the JWT from local storage and updates the current user.</li>
+                <li><code>token</code> retrieves the JWT from local storage for authenticated API requests.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>5. Creating the Login Component</h2>
+        <p>Create a login component to allow users to enter their credentials:</p>
+        <pre><code>ng generate component login</code></pre>
+
+        <h3>Login Component Implementation</h3>
+        <pre><code class="language-typescript">import { Component } from '@angular/core';
+import { AuthService } from '../auth.service';
+
+@Component({
+    selector: 'app-login',
+    templateUrl: './login.component.html'
+})
+export class LoginComponent {
+    username: string = '';
+    password: string = '';
+    errorMessage: string = '';
+
+    constructor(private authService: AuthService) { }
+
+    login() {
+        this.authService.login(this.username, this.password).subscribe(
+            () =&gt; window.location.reload(),
+            error =&gt; this.errorMessage = 'Invalid credentials'
+        );
+    }
+}</code></pre>
+
+        <pre><code class="language-html">&lt;div&gt;
+    &lt;h2&gt;Login&lt;/h2&gt;
+    &lt;form (ngSubmit)="login()"&gt;
+        &lt;div&gt;
+            &lt;label&gt;Username&lt;/label&gt;
+            &lt;input [(ngModel)]="username" name="username" required&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+            &lt;label&gt;Password&lt;/label&gt;
+            &lt;input [(ngModel)]="password" name="password" type="password" required&gt;
+        &lt;/div&gt;
+        &lt;button type="submit"&gt;Login&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;div *ngIf="errorMessage"&gt;{{ errorMessage }}&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>The login form captures user credentials and calls the <code>login</code> method on submission.</li>
+                <li>Error messages are displayed if authentication fails.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>6. Protecting Routes</h2>
+        <p>To restrict access to certain routes based on authentication, use Angular guards:</p>
+        <pre><code>ng generate guard auth</code></pre>
+
+        <h3>Auth Guard Implementation</h3>
+        <pre><code class="language-typescript">import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class AuthGuard implements CanActivate {
+    constructor(private authService: AuthService, private router: Router) { }
+
+    canActivate(): boolean {
+        if (this.authService.token) {
+            return true;
+        }
+        this.router.navigate(['/login']);
+        return false;
+    }
+}</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li><code>AuthGuard</code> checks if the user has a valid JWT token before allowing access to routes.</li>
+                <li>If not authenticated, users are redirected to the login page.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>7. Applying the Guard</h2>
+        <p>Apply the guard to routes in your routing module:</p>
+        <pre><code class="language-typescript">import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from './auth.guard';
+import { LoginComponent } from './login/login.component';
+import { HomeComponent } from './home/home.component';
+
+const routes: Routes = [
+    { path: 'login', component: LoginComponent },
+    { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+    { path: '', redirectTo: '/home', pathMatch: 'full' }
+];
+
+@NgModule({
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
+})
+export class AppRoutingModule { }</code></pre>
+
+        <div class="output">
+            <p>Explanation:</p>
+            <ul>
+                <li>Routes that require authentication have the <code>AuthGuard</code> applied.</li>
+                <li>The guard ensures that only authenticated users can access these routes.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>8. Testing</h2>
+        <p>Ensure that you test the authentication flow:</p>
+        <ul>
+            <li>Verify that login with valid credentials grants access to protected routes.</li>
+            <li>Check that invalid credentials result in an appropriate error message.</li>
+            <li>Confirm that the guard correctly restricts access to protected routes.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>9. Conclusion</h2>
+        <p>In this guide, we covered how to set up JWT authentication in an Angular application with an ASP.NET Core backend. This includes configuring the backend for JWT, implementing login functionality, managing JWTs in Angular, and protecting routes. Proper authentication ensures that users can securely access your application.</p>
+    </section>
+</body>
+</html>
